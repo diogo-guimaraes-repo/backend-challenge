@@ -1,3 +1,6 @@
+using Backend.Challenge.Persistence;
+using Backend.Challenge.Persistence.Context;
+using Backend.Challenge.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,12 +22,18 @@ namespace Backend.Challenge
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddControllers();
+      services.AddControllers(options =>
+      {
+        options.SuppressAsyncSuffixInActionNames = false;
+      });
+      services.AddSingleton<ICommentsRepository, RavenDBCommentsRepository>();
+      services.AddSingleton<IRavenDbContext, RavenDbContext>();
       services.AddSwaggerGen(c =>
       {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "Challenge", Version = "v1" });
       });
 
+      services.Configure<PersistenceSettings>(Configuration.GetSection("Database"));
       services.AddRazorPages();
     }
 
